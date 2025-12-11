@@ -1,259 +1,176 @@
-# ModelScope 智能路由器
+# ModelScope 智能模型路由器 (ModelScope Smart Router)
 
-一个基于FastAPI的智能模型路由系统，用于管理和路由多个AI模型的API调用，实现负载均衡和故障转移。
+<div align="center">
 
-## 功能特点
+<img src="./logo.jpg" width="200" alt="ModelScope Router Logo">
 
-- 🔄 **智能路由**: 自动选择可用的模型进行API调用
-- 📊 **实时监控**: 提供美观的控制台界面，实时显示模型状态和使用情况
-- 🚫 **限流检测**: 自动检测并跳过达到API限制的模型
-- 📈 **统计分析**: 记录每个模型的调用次数、成功率和响应时间
-- 🔄 **故障转移**: 当某个模型调用失败时，自动尝试其他可用模型
-- 🌊 **流式支持**: 完全支持流式响应和非流式响应
+<br>
 
-## 项目结构
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.95%2B-green)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-```
-refactored_router/
-├── main.py              # 主应用程序入口
-├── settings.py          # 配置管理
-├── network.py           # API客户端和网络请求处理
-├── stats.py             # 统计数据管理
-├── ui.py                # 控制台UI界面
-├── schema.py            # 数据模型定义
-├── config.json          # 模型配置文件
-├── .env                 # 环境变量配置
-└── router_data/         # 数据存储目录
-    └── model_stats.json # 模型统计数据
-```
+**用于 ModelScope 服务的企业级负载均衡与高可用路由网关**
+</div>
 
-## 快速开始
+---
 
-### 1. 环境准备
+## 📖 项目简介
 
-确保你的系统已安装Python 3.8+，然后安装项目依赖：
+ModelScope Smart Router 是一个基于 FastAPI 构建的高性能 AI 模型网关。它就像一个智能交通指挥官，旨在解决**单点故障**和**API调用限流**问题。通过智能路由算法，它能自动管理多个 ModelScope 模型实例，实现负载均衡、故障转移（Failover）和精细化的限流控制，确保您的 AI 应用始终保持高可用性。
 
-```bash
-pip install fastapi uvicorn httpx rich pydantic
-```
+无论您是个人开发者还是企业用户，都可以通过本系统统一管理 API 访问，提升服务的稳定性和成功率。完全兼容 OpenAI API 格式，可直接接入现有的 AI 工具链（如 Cursor, NextChat, LangChain 等）。
 
-### 2. 配置设置
+## ✨ 核心功能
 
-1. 复制并编辑 `.env` 文件：
+- **🤖 智能路由策略**: 自动识别请求模型，在多个同类模型后端中选择最佳候选者。
+- **⚖️ 负载均衡**: 基于调用次数和权重的负载均衡，防止单一账号或模型过载。
+- **🛡️ 自动故障转移**: 当某个模型调用失败或超时，自动无缝切换到备用模型，用户无感知。
+- **🚦 智能限流熔断**: 实时监测 API 调用限制，自动跳过已耗尽配额的模型，并在配额重置后自动恢复。
+- **📊 可视化监控台**: 提供基于终端的 Rich UI 仪表盘，实时展示 QPS、成功率、响应时间及各模型健康状态。
+- **🔌 OpenAI 兼容**: 提供与 OpenAI `v1/chat/completions` 完全兼容的接口，零成本迁移。
+- **🌊 流式响应支持**: 完美支持 Server-Sent Events (SSE) 流式输出，打字机效果流畅。
 
-```env
-MS_API_KEY=你的魔搭社区API密钥
-MS_BASE_URL=https://api-inference.modelscope.cn/v1
-PORT=2166
-```
+## 🚀 快速启动 (Quick Start)
 
-2. 根据需要修改 `config.json` 文件中的模型配置：
+仅需一行 Python 命令即可启动服务。
 
-```json
-[
-  {"name": "deepseek-v3-2", "model_id": "deepseek-ai/DeepSeek-V3.2", "estimated_limit": 50},
-  {"name": "glm-4-5", "model_id": "ZhipuAI/GLM-4.5", "estimated_limit": 50}
-]
-```
-
-### 3. 运行服务
+### 1. 安装依赖
 
 ```bash
-# 在项目根目录下运行
+pip install -r requirements.txt
+```
+*如果没有 requirements.txt，可手动安装：`pip install fastapi uvicorn httpx rich pydantic`*
+
+### 2. 配置说明
+
+1. **环境配置**：
+   复制并编辑 `refactored_router/.env` 文件填入您的 Key：
+   ```env
+   MS_API_KEY=your_modelscope_api_key_here
+   MS_BASE_URL=https://api-inference.modelscope.cn/v1
+   PORT=2166
+   ```
+
+2. **模型配置**：
+   在 `refactored_router/config.json` 中定义模型池。
+
+### 3. 启动服务
+
+在项目**根目录**下运行：
+```bash
 python -m refactored_router.main
 ```
 
-服务将在 `http://localhost:2166` 启动。
+服务将在 `http://localhost:2166` 启动。数据将持久化保存在 `./router_data` 目录。
 
-## API使用
+## ⚙️ 配置详解 (Configuration)
 
-### 聊天完成接口
+### 1. 基础配置 (.env)
 
-#### 1. 使用智能路由（推荐）
+位于 `refactored_router/.env`，控制核心连接参数。
 
-智能路由会自动选择当前可用的最佳模型：
+| 变量名 | 说明 | 默认值 | 必填 |
+|--------|------|--------|------|
+| `MS_API_KEY` | ModelScope 平台的 API Key | 无 | ✅ 是 |
+| `MS_BASE_URL` | 模型服务基础 URL | `https://api-inference.modelscope.cn/v1` | ❌ 否 |
+| `PORT` | 服务监听端口 | `2166` | ❌ 否 |
 
+### 2. 模型路由配置 (config.json)
+
+位于 `refactored_router/config.json`，定义了路由池中的模型列表。您可以添加多个具有相同 `model_id` 的条目（使用不同名称），或者不同的模型。
+
+```json
+[
+  {
+    "name": "deepseek-v3-2",           // 内部标识名称（需唯一）
+    "model_id": "deepseek-ai/DeepSeek-V3.2", // ModelScope 上的真实模型 ID
+    "estimated_limit": 50              // 每日预估调用次数限制（用于限流计算）
+  },
+  {
+    "name": "glm-4-5",
+    "model_id": "ZhipuAI/GLM-4.5",
+    "estimated_limit": 50
+  }
+]
+```
+
+## 💻 使用指南 (Usage)
+
+本服务提供与 OpenAI 兼容的 API，这意味着您可以直接使用任何支持 OpenAI 的客户端库或软件。
+
+### 接入第三方客户端 (Cursor, NextChat 等)
+
+- **Base URL (API域名)**: `http://localhost:2166/v1` (注意部分软件不需要 `/v1`)
+- **API Key**: 任意填写 (因为鉴权在服务端通过环境变量处理，或者您可以自行扩展鉴权逻辑)
+- **Model Name**: `modelscope-router` (推荐，使用智能路由) 或具体的模型名如 `deepseek-v3-2`
+
+### 命令行调用 (cURL)
+
+**智能路由模式（推荐）：**
 ```bash
-curl -X POST "http://localhost:2166/v1/chat/completions" \
+curl http://localhost:2166/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "modelscope-router",
-    "messages": [
-      {"role": "user", "content": "你好，请介绍一下你自己"}
-    ]
-  }'
-```
-
-#### 2. 指定特定模型
-
-你也可以指定具体的模型名称：
-
-```bash
-curl -X POST "http://localhost:2166/v1/chat/completions" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "deepseek-v3-2",
-    "messages": [
-      {"role": "user", "content": "你好，请介绍一下你自己"}
-    ]
-  }'
-```
-
-#### 3. 流式响应
-
-启用流式响应以获得实时输出：
-
-```bash
-curl -X POST "http://localhost:2166/v1/chat/completions" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "modelscope-router",
-    "messages": [
-      {"role": "user", "content": "写一个Python函数"}
-    ],
+    "messages": [{"role": "user", "content": "Hello!"}],
     "stream": true
   }'
 ```
 
-### Python客户端示例
+### Python 客户端示例
 
 ```python
-import requests
-import json
+from openai import OpenAI
 
-# API端点
-url = "http://localhost:2166/v1/chat/completions"
+client = OpenAI(
+    api_key="dummy", 
+    base_url="http://localhost:2166/v1"
+)
 
-# 请求数据
-data = {
-    "model": "modelscope-router",  # 使用智能路由
-    "messages": [
-        {"role": "user", "content": "解释一下什么是机器学习"}
-    ],
-    "temperature": 0.7,
-    "max_tokens": 1000
-}
+response = client.chat.completions.create(
+    model="modelscope-router", # 自动路由
+    messages=[{"role": "user", "content": "写一首关于AI的诗"}],
+    stream=True
+)
 
-# 发送请求
-response = requests.post(url, headers={"Content-Type": "application/json"}, json=data)
-
-# 处理响应
-if response.status_code == 200:
-    result = response.json()
-    print(result["choices"][0]["message"]["content"])
-else:
-    print(f"请求失败: {response.status_code}, {response.text}")
+for chunk in response:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
 ```
 
-### JavaScript客户端示例
+## 🖥️ 监控控制台
 
-```javascript
-// 使用fetch API
-const url = "http://localhost:2166/v1/chat/completions";
+服务启动后，终端将展示一个实时更新的仪表盘：
 
-const data = {
-    model: "modelscope-router",  // 使用智能路由
-    messages: [
-        {role: "user", content: "写一个简单的React组件"}
-    ],
-    temperature: 0.7,
-    max_tokens: 1000
-};
+- **Model List**: 顶部展示所有配置的模型及其健康状态（🟢 Active / 🔴 Limited）。
+- **Usage**: 显示当前已用调用次数 vs 预估限制。
+- **Real-time Logs**: 底部滚动显示请求日志、路由决策和错误信息。
 
-fetch(url, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-})
-.then(response => response.json())
-.then(result => {
-    console.log(result.choices[0].message.content);
-})
-.catch(error => {
-    console.error("请求失败:", error);
-});
+![Monitor Dashboard](./roo-code-example.png)
+
+## 📁 目录结构
+
+```
+.
+├── requirements.txt         # Python 依赖列表
+├── README.md                # 说明文档
+├── logo.jpg                 # 项目 Logo
+└── refactored_router/       # 核心代码包
+    ├── main.py              # 程序入口
+    ├── settings.py          # 配置加载
+    ├── network.py           # 网络请求与重试逻辑
+    ├── stats.py             # 统计与限流服务
+    ├── ui.py                # 终端 UI 实现
+    ├── config.json          # 模型配置文件
+    └── .env                 # 环境变量
 ```
 
-## 控制台界面
+## 🤝 贡献与支持
 
-服务启动后，你会看到一个实时的控制台界面，显示：
+欢迎提交 Issue 和 Pull Request！
+如果您觉得这个项目有帮助，请给一个 ⭐️ Star！
 
-- 📊 每个模型的使用情况（当前调用次数/限制）
-- ✅ 成功率统计
-- 🔴 模型状态（活跃/受限）
-- 📝 实时请求日志
-- ⏱️ 响应时间统计
-
-### 界面示例
-
-![ROOCODE使用示例](./roo-code-example.png)
-
-像cherrystudio等调用api的都可以和roocode中一样的使用
-
-控制台界面会实时更新，显示以下信息：
-
-1. **顶部表格**：展示所有配置的模型及其状态
-   - Model Name: 模型显示名称
-   - Usage: 当前使用次数/限制（颜色编码：绿色=正常，黄色=接近限制，红色=已达限制）
-   - Success Rate: 模型调用成功率
-   - Status: 模型当前状态（🟢 Active 或 🔴 LIMITED）
-
-2. **底部日志**：实时显示请求处理过程
-   - 📨 Request: 接收到的请求信息
-   - 👉 Trying: 正在尝试的模型
-   - ↳ SUCCESS/FAILED: 请求结果及详细信息
-
-### 颜色编码说明
-
-- 🟢 **绿色**：模型正常可用，使用次数在安全范围内
-- 🟡 **黄色**：模型使用次数接近限制（≥80%）
-- 🔴 **红色**：模型已达到限制或被限流
-
-## 配置说明
-
-### 环境变量
-
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| `MS_API_KEY` | 魔搭社区API密钥 | 必填 |
-| `MS_BASE_URL` | API基础URL | `https://api-inference.modelscope.cn/v1` |
-| `PORT` | 服务端口 | `2166` |
-
-### 模型配置
-
-在 `config.json` 中配置模型：
-
-```json
-{
-  "name": "模型显示名称",
-  "model_id": "模型在ModelScope中的ID",
-  "estimated_limit": 每日预估调用限制
-}
-```
-
-## 工作原理
-
-1. **请求接收**: 接收标准的OpenAI格式的聊天完成请求
-2. **模型选择**: 根据配置和统计信息选择可用的模型
-3. **负载均衡**: 优先选择调用次数较少的模型
-4. **故障转移**: 如果模型调用失败，自动尝试下一个可用模型
-5. **统计记录**: 记录每次调用的结果，用于后续决策
-6. **限流处理**: 自动检测并跳过达到API限制的模型
-
-## 许可证
+## 📄 许可证
 
 MIT License
-
-## 贡献
-
-欢迎提交Issue和Pull Request来改进这个项目！
-
-## 更新日志
-
-### v1.0.0
-- 初始版本发布
-- 支持多模型路由和故障转移
-- 实时监控界面
-- 统计数据管理
