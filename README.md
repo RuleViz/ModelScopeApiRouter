@@ -69,6 +69,10 @@ python -m refactored_router.main
 
 ### 聊天完成接口
 
+#### 1. 使用智能路由（推荐）
+
+智能路由会自动选择当前可用的最佳模型：
+
 ```bash
 curl -X POST "http://localhost:2166/v1/chat/completions" \
   -H "Content-Type: application/json" \
@@ -80,7 +84,7 @@ curl -X POST "http://localhost:2166/v1/chat/completions" \
   }'
 ```
 
-### 指定模型
+#### 2. 指定特定模型
 
 你也可以指定具体的模型名称：
 
@@ -95,7 +99,9 @@ curl -X POST "http://localhost:2166/v1/chat/completions" \
   }'
 ```
 
-### 流式响应
+#### 3. 流式响应
+
+启用流式响应以获得实时输出：
 
 ```bash
 curl -X POST "http://localhost:2166/v1/chat/completions" \
@@ -109,6 +115,67 @@ curl -X POST "http://localhost:2166/v1/chat/completions" \
   }'
 ```
 
+### Python客户端示例
+
+```python
+import requests
+import json
+
+# API端点
+url = "http://localhost:2166/v1/chat/completions"
+
+# 请求数据
+data = {
+    "model": "modelscope-router",  # 使用智能路由
+    "messages": [
+        {"role": "user", "content": "解释一下什么是机器学习"}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 1000
+}
+
+# 发送请求
+response = requests.post(url, headers={"Content-Type": "application/json"}, json=data)
+
+# 处理响应
+if response.status_code == 200:
+    result = response.json()
+    print(result["choices"][0]["message"]["content"])
+else:
+    print(f"请求失败: {response.status_code}, {response.text}")
+```
+
+### JavaScript客户端示例
+
+```javascript
+// 使用fetch API
+const url = "http://localhost:2166/v1/chat/completions";
+
+const data = {
+    model: "modelscope-router",  // 使用智能路由
+    messages: [
+        {role: "user", content: "写一个简单的React组件"}
+    ],
+    temperature: 0.7,
+    max_tokens: 1000
+};
+
+fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+})
+.then(response => response.json())
+.then(result => {
+    console.log(result.choices[0].message.content);
+})
+.catch(error => {
+    console.error("请求失败:", error);
+});
+```
+
 ## 控制台界面
 
 服务启动后，你会看到一个实时的控制台界面，显示：
@@ -118,6 +185,29 @@ curl -X POST "http://localhost:2166/v1/chat/completions" \
 - 🔴 模型状态（活跃/受限）
 - 📝 实时请求日志
 - ⏱️ 响应时间统计
+
+### 界面示例
+
+![控制台界面示例](Roo Code示例.png)
+
+控制台界面会实时更新，显示以下信息：
+
+1. **顶部表格**：展示所有配置的模型及其状态
+   - Model Name: 模型显示名称
+   - Usage: 当前使用次数/限制（颜色编码：绿色=正常，黄色=接近限制，红色=已达限制）
+   - Success Rate: 模型调用成功率
+   - Status: 模型当前状态（🟢 Active 或 🔴 LIMITED）
+
+2. **底部日志**：实时显示请求处理过程
+   - 📨 Request: 接收到的请求信息
+   - 👉 Trying: 正在尝试的模型
+   - ↳ SUCCESS/FAILED: 请求结果及详细信息
+
+### 颜色编码说明
+
+- 🟢 **绿色**：模型正常可用，使用次数在安全范围内
+- 🟡 **黄色**：模型使用次数接近限制（≥80%）
+- 🔴 **红色**：模型已达到限制或被限流
 
 ## 配置说明
 
