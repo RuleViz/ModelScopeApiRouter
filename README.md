@@ -188,7 +188,9 @@ fetch(url, {
 
 ### 界面示例
 
-![控制台界面示例](Roo Code示例.png)
+![ROOCODE使用示例](./roo-code-example.png)
+
+像cherrystudio等调用api的都可以和roocode中一样的使用
 
 控制台界面会实时更新，显示以下信息：
 
