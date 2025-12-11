@@ -1,0 +1,17 @@
+[
+  {"name": "deepseek-v3-2", "model_id": "deepseek-ai/DeepSeek-V3.2", "estimated_limit": 50},
+  {"name": "deepseek-v3-2-exp", "model_id": "deepseek-ai/DeepSeek-V3.2-Exp", "estimated_limit": 50},
+  {"name": "deepseek-v3-1", "model_id": "deepseek-ai/DeepSeek-V3.1", "estimated_limit": 50},
+  {"name": "deepseek-r1-0528", "model_id": "deepseek-ai/DeepSeek-R1-0528", "estimated_limit": 50},
+  {"name": "glm-4-6v", "model_id": "ZhipuAI/GLM-4.6V", "estimated_limit": 50},
+  {"name": "glm-4-5", "model_id": "ZhipuAI/GLM-4.5", "estimated_limit": 50},
+  {"name": "qwen3-235b-a22b-instruct", "model_id": "Qwen/Qwen3-235B-A22B-Instruct-2507", "estimated_limit": 30},
+  {"name": "qwen3-235b-a22b", "model_id": "Qwen/Qwen3-235B-A22B", "estimated_limit": 30},
+  {"name": "qwen3-235b-a22b-thinking", "model_id": "Qwen/Qwen3-235B-A22B-Thinking-2507", "estimated_limit": 30},
+  {"name": "qwen3-vl-235b-a22b-instruct", "model_id": "Qwen/Qwen3-VL-235B-A22B-Instruct", "estimated_limit": 30},
+  {"name": "qwen3-next-80b-a3b-instruct", "model_id": "Qwen/Qwen3-Next-80B-A3B-Instruct", "estimated_limit": 50},
+  {"name": "qwen3-next-80b-a3b-thinking", "model_id": "Qwen/Qwen3-Next-80B-A3B-Thinking", "estimated_limit": 50},
+  {"name": "qwen3-coder-480b-a35b-instruct", "model_id": "Qwen/Qwen3-Coder-480B-A35B-Instruct", "estimated_limit": 30},
+  {"name": "qwen3-coder-30b-a3b-instruct", "model_id": "Qwen/Qwen3-Coder-30B-A3B-Instruct", "estimated_limit": 50},
+  {"name": "qwen3-vl-30b-a3b-thinking", "model_id": "Qwen/Qwen3-VL-30B-A3B-Thinking", "estimated_limit": 50}
+]
