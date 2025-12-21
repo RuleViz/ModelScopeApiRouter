@@ -103,7 +103,7 @@ python -m refactored_router.main
 
 - **Base URL (API域名)**: `http://localhost:2166/v1` (注意部分软件不需要 `/v1`)
 - **API Key**: 任意填写 (因为鉴权在服务端通过环境变量处理，或者您可以自行扩展鉴权逻辑)
-- **Model Name**: `modelscope-router` (推荐，使用智能路由) 或具体的模型名如 `deepseek-v3-2`
+- **Model Name**: `modelscope-router` (推荐，使用智能路由,配置文件中默认就是这个modelID,如要更改，请在代码文件中进行更改) 
 
 ### 命令行调用 (cURL)
 
